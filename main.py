@@ -17,11 +17,6 @@ TRACK1_2 = pygame.transform.scale(TRACK1_2, (15,55))
 BULLET1 = pygame.image.load("./Assets/Effects/Exhaust_Fire.png")
 BULLET1 = pygame.transform.scale(BULLET1, (40,40))
 
-EXPLOSION1 = pygame.image.load("./Assets/Effects/Flash_A_01.png")
-EXPLOSION1 = pygame.transform.scale(EXPLOSION1, (40,40))
-EXPLOSION2 = pygame.image.load("./Assets/Effects/Flash_A_02.png")
-EXPLOSION2 = pygame.transform.scale(EXPLOSION2, (40,40))
-
 WIDTH, HEIGHT = 1000, 800
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 FPS = 60
@@ -31,8 +26,6 @@ bullets = []
 BLT_SPEED = 10
 
 TANK_SHOOT_ALLOW = True
-
-
 
 class Tank():
     def __init__(self,x,y):
@@ -161,10 +154,6 @@ def main():
 
 
 def draw_window():
-    FLASH_COOLDOWN = 0
-    print(FLASH_COOLDOWN)
-    if FLASH_COOLDOWN > 0:
-        FLASH_COOLDOWN -= 1
     WIN.fill(WHITE)
     tank.show()
     print(TANK_SHOOT_ALLOW)
@@ -172,10 +161,6 @@ def draw_window():
     # print(bullets)
     for bullet in bullets:
         bullet.show()
-        if tank.direction == "up" and FLASH_COOLDOWN == 0:
-            WIN.blit(EXPLOSION1, (tank.x + 5, tank.y - 15))
-            FLASH_COOLDOWN = 10
-             
     pygame.display.update()
 
 if __name__ == "__main__":
