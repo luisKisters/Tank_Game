@@ -1,6 +1,7 @@
 import pygame
 import math
 import os 
+import random
 
 HULL1_BRONZE = pygame.image.load("Hull_01.png")
 HULL1_BRONZE = pygame.transform.scale(HULL1_BRONZE, (50,50))
@@ -22,8 +23,11 @@ WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 FPS = 60
 WHITE = (255,255,255)
 
+enemies = []
+enemy_bullets = []
+
 bullets = []
-BLT_SPEED = 10
+BLT_SPEED = 2.5
 
 TANK_SHOOT_ALLOW = True
 
@@ -40,6 +44,7 @@ class Tank():
         self.track_texture = TRACK1_1
         self.track = ""
         self.direction = "up"
+        self.speed = 12
         # self.rect = pygame.Rect(, top, width, height) 
         # self.texture = HULL1_BRONZE
     
@@ -48,7 +53,7 @@ class Tank():
         keys_pressed = pygame.key.get_pressed()
 
         if keys_pressed[pygame.K_w]:
-            self.y -= 1
+            self.y -= self.speed
             self.direction = "up"
             self.rotation = 0    
         if keys_pressed[pygame.K_a]:
@@ -57,13 +62,13 @@ class Tank():
             #     self.rotation += 1
             #     pygame.time.delay(100)
             self.rotation = 90 
-            self.x -= 1   
+            self.x -= self.speed
         if keys_pressed[pygame.K_s]:
-            self.y += 1
+            self.y += self.speed
             self.rotation = 180
             self.direction = "down"
         if keys_pressed[pygame.K_d]:
-            self.x += 1
+            self.x += self.speed
             self.rotation = -90
             self.direction = "right"
 
@@ -95,7 +100,6 @@ class Tank():
         if self.direction == "left":
             bullet = Bullet(self.x - 10, self.y +5)
         bullets.append(bullet)  
-        
 
 class Bullet():
     def __init__(self, x,y):
@@ -120,10 +124,59 @@ class Bullet():
     def show(self):
         self.update_pos()
         self.bullet = pygame.transform.rotate(self.texture, self.rotation)
-        WIN.blit(self.bullet, (self.x,self.y))
+        WIN.blit(self.bullet, (self.x,self.y))       
+
+
+class Enemy():
+    def __init__(self,x,y,lvl):
+        self.x = x
+        self.y = y
+        self.lvl = lvl
+        self.blt_speed = 1
+        if lvl == 1:
+            self.texture = "./Hull_01.png" 
+            self.speed = random.randint(1, 10)
+            
+        self.dmg = 1
         
-        
+    def show(self):
+        self.move()
+        WIN.blit(HULL1_BRONZE, (self.x,self.y))
+        # print("blit")
     
+    def move(self):
+        if self.y >= tank.y:
+            self.y -= self.speed
+        if self.y <= tank.y:
+            self.y += self.speed
+        if self.x <= tank.x:
+            self.x += self.speed
+        if self.x >= tank.x:
+            self.x -= self.speed
+    
+    def shoot(self):
+        myradians = math.atan2(self.y-tank.y, self.x-tank.x)
+        mydegrees = math.degrees(myradians)
+        print(mydegrees)
+        enemy_bullet = EnemyBullet(self.x, self.y, mydegrees, self.blt_speed)
+        enemy_bullets.append(enemy_bullet)
+        
+
+class EnemyBullet():
+    def __init__(self, x,y, rotation, speed):
+        self.x = x
+        self.y = y
+        self.speed = speed
+        self.texture = BULLET1
+        self.bullet = ""
+        self.rotation = rotation
+
+    def move(self):
+        pass
+        
+    def show(self):
+        self.bullet = pygame.transform.rotate(self.texture, self.rotation)
+        WIN.blit(self.bullet, (self.x,self.y))    
 
 tank = Tank(100, 100)
 
@@ -141,24 +194,36 @@ def main():
             if TANK_SHOOT_ALLOW == True:
                 tank.shoot()
                 TANK_SHOOT_ALLOW = False
+        if keys_pressed[pygame.K_c]:
+            enemy = Enemy(random.randint(0, 300), random.randint(0, 300), 1)
+            enemies.append(enemy)
+            
         if not keys_pressed[pygame.K_SPACE]:
             TANK_SHOOT_ALLOW = True
                 
         if keys_pressed[pygame.K_ESCAPE]:
             run = False
         
-        print(tank.direction)
+        # print(tank.direction)
 
         draw_window()
     pygame.quit()
 
-
 def draw_window():
-    WIN.fill(WHITE)
+    WIN.fill((0,0,0))
     tank.show()
-    print(TANK_SHOOT_ALLOW)
+    
+    # print(TANK_SHOOT_ALLOW)
     #  bullet.show()
     # print(bullets)
+    keys_pressed = pygame.key.get_pressed()
+    
+    for enemy in enemies:
+        enemy.show()
+        if keys_pressed[pygame.K_v]:
+            enemy.shoot()
+    for enemy_bullet in enemy_bullets:
+        enemy_bullet.show()     
     for bullet in bullets:
         bullet.show()
     pygame.display.update()
